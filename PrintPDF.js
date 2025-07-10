@@ -97,84 +97,84 @@ function printSameWindow(byteArray, issplit = false) {
     }
 }
 
-function printNewWindow(byteArray, fileName = 'document.pdf', issplit = false) {
-    var blobUrl;
-    if (issplit) {
-        let newByteArray = new Uint8Array(this.fileByteArray.length + byteArray.length);
-        newByteArray.set(this.fileByteArray, 0);
-        newByteArray.set(new Uint8Array(byteArray), this.fileByteArray.length);
-        this.fileByteArray = newByteArray;
-        const BlobFile = new Blob([new Uint8Array(this.fileByteArray)], { type: 'application/pdf' });
-        blobUrl = URL.createObjectURL(BlobFile);
-    }
-    else {
-        const BlobFile = new Blob([new Uint8Array(byteArray)], { type: 'application/pdf' });
-        blobUrl = URL.createObjectURL(BlobFile);
-    }
-    const info = getBrowserAndDeviceInfo();
-    if (isSafariOniPad()) {
-        OpenPrintForIpad(blobUrl);
-    }
-    else if (info.browser === "Chrome" && info.isMobile) {
-        printPdfFromBytes(byteArray); 
-    } else if (info.browser === "Edge" && info.isMobile) {
-        console.log("Opened in Edge browser");
-    } else {
-        const screenWidth = window.screen.availWidth;
-        const screenHeight = window.screen.availHeight;
-        const printWindow = window.open('', fileName, `width=${screenWidth},height=${screenHeight},top=0,left=0,toolbar=no,menubar=no,scrollbars=no,resizable=no`);
-        if (!printWindow) {
-            alert("Please allow pop-ups for this site.");
-            return;
-        }
-        const htmlContent = `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>${fileName}</title>
-                <style>
-                    html, body {
-                        margin: 0;
-                        padding: 0;
-                        height: 100%;
-                        overflow: hidden;
-                    }
-                    iframe {
-                        width: 100%;
-                        height: 100%;
-                        border: none;
-                    }
-                </style>
-            </head>
-            <body>
-                <iframe id="pdfFrame" src="${blobUrl}#view=FitH&toolbar=0&navpanes=0&scrollbar=0"></iframe>
-                <script>
-                    const iframe = document.getElementById('pdfFrame');
-                    iframe.onload = function () {
-                        setTimeout(() => {
-                            iframe.contentWindow.focus();
-                            iframe.contentWindow.print();
-                        }, 500);
-                    };
+// function printNewWindow(byteArray, fileName = 'document.pdf', issplit = false) {
+//     var blobUrl;
+//     if (issplit) {
+//         let newByteArray = new Uint8Array(this.fileByteArray.length + byteArray.length);
+//         newByteArray.set(this.fileByteArray, 0);
+//         newByteArray.set(new Uint8Array(byteArray), this.fileByteArray.length);
+//         this.fileByteArray = newByteArray;
+//         const BlobFile = new Blob([new Uint8Array(this.fileByteArray)], { type: 'application/pdf' });
+//         blobUrl = URL.createObjectURL(BlobFile);
+//     }
+//     else {
+//         const BlobFile = new Blob([new Uint8Array(byteArray)], { type: 'application/pdf' });
+//         blobUrl = URL.createObjectURL(BlobFile);
+//     }
+//     const info = getBrowserAndDeviceInfo();
+//     if (isSafariOniPad()) {
+//         OpenPrintForIpad(blobUrl);
+//     }
+//     else if (info.browser === "Chrome" && info.isMobile) {
+//         printPdfFromBytes(byteArray); 
+//     } else if (info.browser === "Edge" && info.isMobile) {
+//         console.log("Opened in Edge browser");
+//     } else {
+//         const screenWidth = window.screen.availWidth;
+//         const screenHeight = window.screen.availHeight;
+//         const printWindow = window.open('', fileName, `width=${screenWidth},height=${screenHeight},top=0,left=0,toolbar=no,menubar=no,scrollbars=no,resizable=no`);
+//         if (!printWindow) {
+//             alert("Please allow pop-ups for this site.");
+//             return;
+//         }
+//         const htmlContent = `
+//             <!DOCTYPE html>
+//             <html>
+//             <head>
+//                 <title>${fileName}</title>
+//                 <style>
+//                     html, body {
+//                         margin: 0;
+//                         padding: 0;
+//                         height: 100%;
+//                         overflow: hidden;
+//                     }
+//                     iframe {
+//                         width: 100%;
+//                         height: 100%;
+//                         border: none;
+//                     }
+//                 </style>
+//             </head>
+//             <body>
+//                 <iframe id="pdfFrame" src="${blobUrl}#view=FitH&toolbar=0&navpanes=0&scrollbar=0"></iframe>
+//                 <script>
+//                     const iframe = document.getElementById('pdfFrame');
+//                     iframe.onload = function () {
+//                         setTimeout(() => {
+//                             iframe.contentWindow.focus();
+//                             iframe.contentWindow.print();
+//                         }, 500);
+//                     };
 
-                    // Notify parent when printing is done
-                    window.onafterprint = function () {
-                        window.close();
-                    };
-                </script>
-            </body>
-            </html>
-        `;
+//                     // Notify parent when printing is done
+//                     window.onafterprint = function () {
+//                         window.close();
+//                     };
+//                 </script>
+//             </body>
+//             </html>
+//         `;
 
-        printWindow.document.open();
-        printWindow.document.write(htmlContent);
-        printWindow.document.close();
+//         printWindow.document.open();
+//         printWindow.document.write(htmlContent);
+//         printWindow.document.close();
 
-        setTimeout(() => {
-            URL.revokeObjectURL(blobUrl);
-        }, 60000);
-    }
-}
+//         setTimeout(() => {
+//             URL.revokeObjectURL(blobUrl);
+//         }, 60000);
+//     }
+// }
 
 function isSafariOniPad() {
   const ua = navigator.userAgent || navigator.vendor || window.opera;
@@ -235,60 +235,7 @@ function printNewWindow(byteArray, fileName = 'document.pdf', issplit = false) {
     if (isSafariOniPad()) {
         OpenPrintForIpad(blobUrl);
     } else if (info.browser === "Chrome" && info.isMobile) {
-        // Use iframe-based print preview for Chrome on Android
-        const screenWidth = window.screen.availWidth;
-        const screenHeight = window.screen.availHeight;
-        const printWindow = window.open('', fileName, `width=${screenWidth},height=${screenHeight},top=0,left=0,toolbar=no,menubar=no,scrollbars=no,resizable=no`);
-        if (!printWindow) {
-            alert("Please allow pop-ups for this site.");
-            return;
-        }
-
-        const htmlContent = `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>${fileName}</title>
-                <style>
-                    html, body {
-                        margin: 0;
-                        padding: 0;
-                        height: 100%;
-                        overflow: hidden;
-                    }
-                    iframe {
-                        width: 100%;
-                        height: 100%;
-                        border: none;
-                    }
-                </style>
-            </head>
-            <body>
-                <iframe id="pdfFrame" src="${blobUrl}#view=FitH&toolbar=0&navpanes=0&scrollbar=0"></iframe>
-                <script>
-                    const iframe = document.getElementById('pdfFrame');
-                    iframe.onload = function () {
-                        setTimeout(() => {
-                            iframe.contentWindow.focus();
-                            iframe.contentWindow.print();
-                        }, 500);
-                    };
-
-                    window.onafterprint = function () {
-                        window.close();
-                    };
-                </script>
-            </body>
-            </html>
-        `;
-
-        printWindow.document.open();
-        printWindow.document.write(htmlContent);
-        printWindow.document.close();
-
-        setTimeout(() => {
-            URL.revokeObjectURL(blobUrl);
-        }, 60000);
+        printPdfFromBytes(byteArray);
     } else if (info.browser === "Edge" && info.isMobile) {
         console.log("Opened in Edge browser");
     } else {
@@ -348,126 +295,127 @@ function printNewWindow(byteArray, fileName = 'document.pdf', issplit = false) {
     }
 }
 
-export const printPdfFromBytes = (() => {
+function printPdfFromBytes(byteArray) {
   const isFirefox = /Gecko\/\d/.test(navigator.userAgent);
   const isAndroid = /Android/.test(navigator.userAgent);
   const firefoxDelay = 1000;
-  let iframe;
+  let iframe = document.getElementById("print-pdf-iframe");
 
-  return function (byteArray) {
-    if (!byteArray || !(byteArray instanceof Uint8Array || Array.isArray(byteArray))) {
-      console.error("Invalid byte array provided.");
-      return;
-    }
+  if (!byteArray || !(byteArray instanceof Uint8Array || Array.isArray(byteArray))) {
+    console.error("Invalid byte array provided.");
+    return;
+  }
 
-    if (iframe) {
-      iframe.remove();
-    }
+  if (iframe) {
+    iframe.remove();
+  }
 
-    const pdfBlob = new Blob([new Uint8Array(byteArray)], { type: "application/pdf" });
-    const blobUrl = URL.createObjectURL(pdfBlob);
+  const pdfBlob = new Blob([new Uint8Array(byteArray)], { type: "application/pdf" });
+  const blobUrl = URL.createObjectURL(pdfBlob);
 
-    iframe = document.createElement("iframe");
-    iframe.style.cssText =
-      "width: 1px; height: 100px; position: fixed; left: 0; top: 0; opacity: 0; border-width: 0; margin: 0; padding: 0";
-    iframe.src = blobUrl;
+  iframe = document.createElement("iframe");
+  iframe.id = "print-pdf-iframe";
+  iframe.style.cssText =
+    "width: 1px; height: 100px; position: fixed; left: 0; top: 0; opacity: 0; border-width: 0; margin: 0; padding: 0";
+  iframe.src = blobUrl;
 
-    iframe.addEventListener("load", function () {
-      const openPrintPreview = () => {
-        try {
-          iframe.focus();
-          iframe.contentWindow.print();
-        } catch (error) {
-          console.error("Print preview failed:", error);
-        } finally {
-          URL.revokeObjectURL(blobUrl);
-        }
-      };
+  iframe.addEventListener("load", function () {
+    const openPrintPreview = () => {
+      try {
+        iframe.focus();
+        iframe.contentWindow.print();
+      } catch (error) {
+        console.error("Print preview failed:", error);
+      } finally {
+        URL.revokeObjectURL(blobUrl);
+      }
+    };
 
-      if (isFirefox) {
-        setTimeout(openPrintPreview, firefoxDelay);
-      } else if (isAndroid) {
-        const newWindow = window.open("", "_blank");
-        if (newWindow) {
-          newWindow.document.write(`
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Print PDF</title>
-              <style>
-                * { margin: 0; padding: 0; box-sizing: border-box; }
-                html, body { width: 100%; height: 100%; overflow: hidden; }
-                #printButton {
-                  position: fixed;
-                  bottom: 10px;
-                  left: 50px;
-                  z-index: 9999;
-                  padding: 10px;
-                  background: #1F51FF;
-                  color: #fff;
-                  cursor: pointer;
-                 pdfContainer {
+    if (isFirefox) {
+      setTimeout(openPrintPreview, firefoxDelay);
+    } else if (isAndroid) {
+      const newWindow = window.open("", "_blank");
+      if (newWindow) {
+        newWindow.document.write(`
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Print PDF</title>
+            <style>
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              html, body { width: overflow: hidden; }
+              #printButton {
+                position: fixed;
+                bottom: 10px;
+                left: 50px;
+                z-index: 9999;
+                padding: 10px;
+                background: #1F51FF;
+                color: #fff;
+                cursor: pointer;
+                border: none;
+                border-radius: 4px;
+              }
+              #pdfContainer {
+                width: 100%;
+                height: 100%;
+                               align-items: center;
+                justify-content: center;
+              }
+              @media print {
+                #printButton { display: none; }
+                html, body, #pdfContainer {
+                  margin: 0 !important;
+                  padding: 0 !important;
                   width: 100%;
                   height: 100%;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
+                  overflow: hidden !important;
                 }
-                @media print {
-                  #printButton { display: none; }
-                  html, body, #pdfContainer {
-                    margin: 0 !important;
-                    padding: 0 !important;
-                    width: 100%;
-                    height: 100%;
-                    overflow: hidden !important;
-                  }
-                  #pdfContainer canvas {
-                    width: 100% !important;
-                    height: 100% !important;
-                  }
+                #pdfContainer canvas {
+                  width: 100% !important;
+                  height: 100% !important;
                 }
-              </style>
-            </head>
-            <body>
-              <button id="printButton">Print</button>
-              <div id="pdfContainer"></div>
-              <script src="httpsdflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js
-              <script>
-                document.getElementById('printButton').addEventListener('click', () => window.print());
-                const pdfContainer = document.getElementById('pdfContainer');
-                const loadingTask = pdfjsLib.getDocument("${blobUrl}");
-                loadingTask.promise.then(pdf => {
-                  pdf.getPage(1).then(page => {
-                    const scale = 2;
-                    const viewport = page.getViewport({ scale });
-                    const canvas = document.createElement('canvas');
-                    const context = canvas.getContext('2d');
-                    canvas.height = viewport.height;
-                    canvas.width = viewport.width;
-                    page.render({ canvasContext: context, viewport }).promise.then(() => {
-                      pdfContainer.innerHTML = '';
-                      pdfContainer.appendChild(canvas);
-                      canvas.style.width = '100%';
-                      canvas.style.height = '100%';
-                    });
+              }
+            </style>
+          </head>
+          <body>
+            <button id="printButton">Print</button>
+            <div id="pdfContainer"></div>
+            https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js
+            <script>
+              document.getElementById('printButton').addEventListener('click', () => window.print());
+              const pdfContainer = document.getElementById('pdfContainer');
+              const loadingTask = pdfjsLib.getDocument("${blobUrl}");
+              loadingTask.promise.then(pdf => {
+                pdf.getPage(1).then(page => {
+                  const scale = 2;
+                  const viewport = page.getViewport({ scale });
+                  const canvas = document.createElement('canvas');
+                  const context = canvas.getContext('2d');
+                  canvas.height = viewport.height;
+                  canvas.width = viewport.width;
+                  page.render({ canvasContext: context, viewport }).promise.then(() => {
+                    pdfContainer.innerHTML = '';
+                    pdfContainer.appendChild(canvas);
+                    canvas.style.width = '100%';
+                    canvas.style.height = '100%';
                   });
                 });
-              </script>
-            </body>
-            </html>
-          `);
-          newWindow.document.close();
-        } else {
-          alert("Please allow popups for this website");
-        }
+              });
+            </script>
+          </body>
+          </html>
+        `);
+        newWindow.document.close();
       } else {
-        openPrintPreview();
+        alert("Please allow popups for this website");
       }
-    });
+    } else {
+      openPrintPreview();
+    }
+  });
 
-    document.body.appendChild(iframe);
-  };
-})();
+  document.body.appendChild(iframe);
+}
