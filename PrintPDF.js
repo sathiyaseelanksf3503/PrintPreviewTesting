@@ -116,21 +116,61 @@ function printNewWindow(byteArray, fileName = 'document.pdf', issplit = false) {
         OpenPrintForIpad(blobUrl);
     }
     else if (info.browser === "Chrome" && info.isMobile) {
-        // Assume `pdfByteArray` is your Uint8Array or ArrayBuffer
-        const blob = new Blob([byteArray], { type: 'application/pdf' });
-        const blobUrl = URL.createObjectURL(blob);
-
-        // Open in a new tab (user can print from there)
-        const newTab = window.open(blobUrl, '_blank');
-
-        // Optional: Try to trigger print (may not work on mobile)
-        if (newTab) {
-            newTab.onload = () => {
-                newTab.print(); // Often blocked or ignored on mobile
-            };
+        // Use iframe-based print preview for Chrome on Android
+        const screenWidth = window.screen.availWidth;
+        const screenHeight = window.screen.availHeight;
+        const printWindow = window.open('', fileName, `width=${screenWidth},height=${screenHeight},top=0,left=0,toolbar=no,menubar=no,scrollbars=no,resizable=no`);
+        if (!printWindow) {
+            alert("Please allow pop-ups for this site.");
+            return;
         }
-    }
-    else if (info.browser === "Edge" && info.isMobile) {
+
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>${fileName}</title>
+                <style>
+                    html, body {
+                        margin: 0;
+                        padding: 0;
+                        height: 100%;
+                        overflow: hidden;
+                    }
+                    iframe {
+                        width: 100%;
+                        height: 100%;
+                        border: none;
+                    }
+                </style>
+            </head>
+            <body>
+                <iframe id="pdfFrame" src="${blobUrl}#view=FitH&toolbar=0&navpanes=0&scrollbar=0"></iframe>
+                <script>
+                    const iframe = document.getElementById('pdfFrame');
+                    iframe.onload = function () {
+                        setTimeout(() => {
+                            iframe.contentWindow.focus();
+                            iframe.contentWindow.print();
+                        }, 500);
+                    };
+
+                    window.onafterprint = function () {
+                        window.close();
+                    };
+                </script>
+            </body>
+            </html>
+        `;
+
+        printWindow.document.open();
+        printWindow.document.write(htmlContent);
+        printWindow.document.close();
+
+        setTimeout(() => {
+            URL.revokeObjectURL(blobUrl);
+        }, 60000);
+    } else if (info.browser === "Edge" && info.isMobile) {
         console.log("Opened in Edge browser");
     } else {
         const screenWidth = window.screen.availWidth;
@@ -225,4 +265,138 @@ function OpenPrintForIpad(blobUrl) {
     setTimeout(() => {
         URL.revokeObjectURL(blobUrl);
     }, 60000); // Clean up after 1 minute
+}
+
+
+function printNewWindow(byteArray, fileName = 'document.pdf', issplit = false) {
+    let blobUrl;
+
+    if (issplit) {
+        let newByteArray = new Uint8Array(this.fileByteArray.length + byteArray.length);
+        newByteArray.set(this.fileByteArray, 0);
+        newByteArray.set(new Uint8Array(byteArray), this.fileByteArray.length);
+        this.fileByteArray = newByteArray;
+        const BlobFile = new Blob([new Uint8Array(this.fileByteArray)], { type: 'application/pdf' });
+        blobUrl = URL.createObjectURL(BlobFile);
+    } else {
+        const BlobFile = new Blob([new Uint8Array(byteArray)], { type: 'application/pdf' });
+        blobUrl = URL.createObjectURL(BlobFile);
+    }
+
+    const info = getBrowserAndDeviceInfo();
+
+    if (isSafariOniPad()) {
+        OpenPrintForIpad(blobUrl);
+    } else if (info.browser === "Chrome" && info.isMobile) {
+        // Use iframe-based print preview for Chrome on Android
+        const screenWidth = window.screen.availWidth;
+        const screenHeight = window.screen.availHeight;
+        const printWindow = window.open('', fileName, `width=${screenWidth},height=${screenHeight},top=0,left=0,toolbar=no,menubar=no,scrollbars=no,resizable=no`);
+        if (!printWindow) {
+            alert("Please allow pop-ups for this site.");
+            return;
+        }
+
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>${fileName}</title>
+                <style>
+                    html, body {
+                        margin: 0;
+                        padding: 0;
+                        height: 100%;
+                        overflow: hidden;
+                    }
+                    iframe {
+                        width: 100%;
+                        height: 100%;
+                        border: none;
+                    }
+                </style>
+            </head>
+            <body>
+                <iframe id="pdfFrame" src="${blobUrl}#view=FitH&toolbar=0&navpanes=0&scrollbar=0"></iframe>
+                <script>
+                    const iframe = document.getElementById('pdfFrame');
+                    iframe.onload = function () {
+                        setTimeout(() => {
+                            iframe.contentWindow.focus();
+                            iframe.contentWindow.print();
+                        }, 500);
+                    };
+
+                    window.onafterprint = function () {
+                        window.close();
+                    };
+                </script>
+            </body>
+            </html>
+        `;
+
+        printWindow.document.open();
+        printWindow.document.write(htmlContent);
+        printWindow.document.close();
+
+        setTimeout(() => {
+            URL.revokeObjectURL(blobUrl);
+        }, 60000);
+    } else if (info.browser === "Edge" && info.isMobile) {
+        console.log("Opened in Edge browser");
+    } else {
+        const screenWidth = window.screen.availWidth;
+        const screenHeight = window.screen.availHeight;
+        const printWindow = window.open('', fileName, `width=${screenWidth},height=${screenHeight},top=0,left=0,toolbar=no,menubar=no,scrollbars=no,resizable=no`);
+        if (!printWindow) {
+            alert("Please allow pop-ups for this site.");
+            return;
+        }
+
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>${fileName}</title>
+                <style>
+                    html, body {
+                        margin: 0;
+                        padding: 0;
+                        height: 100%;
+                        overflow: hidden;
+                    }
+                    iframe {
+                        width: 100%;
+                        height: 100%;
+                        border: none;
+                    }
+                </style>
+            </head>
+            <body>
+                <iframe id="pdfFrame" src="${blobUrl}#view=FitH&toolbar=0&navpanes=0&scrollbar=0"></iframe>
+                <script>
+                    const iframe = document.getElementById('pdfFrame');
+                    iframe.onload = function () {
+                        setTimeout(() => {
+                            iframe.contentWindow.focus();
+                            iframe.contentWindow.print();
+                        }, 500);
+                    };
+
+                    window.onafterprint = function () {
+                        window.close();
+                    };
+                </script>
+            </body>
+            </html>
+        `;
+
+        printWindow.document.open();
+        printWindow.document.write(htmlContent);
+        printWindow.document.close();
+
+        setTimeout(() => {
+            URL.revokeObjectURL(blobUrl);
+        }, 60000);
+    }
 }
