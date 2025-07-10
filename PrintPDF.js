@@ -154,43 +154,43 @@ function printSameWindow(byteArray, issplit = false) {
     }
 }
 
-function printNewWindow(byteArray, fileName = 'document.pdf', issplit = false) {
+// function printNewWindow(byteArray, fileName = 'document.pdf', issplit = false) {
 
-    const blob = new Blob([byteArray], { type: 'application/pdf' });
-    // Create object URL
-    const blobUrl = URL.createObjectURL(blob);
-    if (isMobileDevice()) {
-        printPDFOnMobile(byteArray, true); // open in new window on mobile
-        return;
-    }
-    else {
-        // Open new window with the blob URL
-        const printWindow = window.open(blobUrl, '_blank');
+//     const blob = new Blob([byteArray], { type: 'application/pdf' });
+//     // Create object URL
+//     const blobUrl = URL.createObjectURL(blob);
+//     if (isMobileDevice()) {
+//         printPDFOnMobile(byteArray, true); // open in new window on mobile
+//         return;
+//     }
+//     else {
+//         // Open new window with the blob URL
+//         const printWindow = window.open(blobUrl, '_blank');
 
-        if (!printWindow) {
-            alert("Failed to open the PDF. Please allow pop-ups for this site.");
-            return;
-        }
+//         if (!printWindow) {
+//             alert("Failed to open the PDF. Please allow pop-ups for this site.");
+//             return;
+//         }
 
-        const tryPrint = () => {
-            printWindow.focus();
-            printWindow.print();
-        };
+//         const tryPrint = () => {
+//             printWindow.focus();
+//             printWindow.print();
+//         };
 
-        // Try printing on load event (works in Chrome and Edge)
-        printWindow.addEventListener('load', tryPrint);
+//         // Try printing on load event (works in Chrome and Edge)
+//         printWindow.addEventListener('load', tryPrint);
 
-        // Fallback for Firefox: try printing after a delay
-        setTimeout(tryPrint, 3000);
+//         // Fallback for Firefox: try printing after a delay
+//         setTimeout(tryPrint, 3000);
 
-        // Clean up the object URL after a delay
-        setTimeout(() => {
-            URL.revokeObjectURL(blobUrl);
-        }, 60000); // Clean up after 1 minute
-    }
-}
+//         // Clean up the object URL after a delay
+//         setTimeout(() => {
+//             URL.revokeObjectURL(blobUrl);
+//         }, 60000); // Clean up after 1 minute
+//     }
+// }
 
-function printPdfFromByteArray(byteArray, openInNewWindow) {
+function printNewWindow(byteArray, openInNewWindow) {
     const blob = new Blob([byteArray], { type: 'application/pdf' });
     const blobUrl = URL.createObjectURL(blob);
 
