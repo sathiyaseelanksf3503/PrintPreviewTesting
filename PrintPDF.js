@@ -189,3 +189,51 @@ function printNewWindow(byteArray, fileName = 'document.pdf', issplit = false) {
         }, 60000); // Clean up after 1 minute
     }
 }
+
+function printPdfFromByteArray(byteArray, openInNewWindow) {
+    const blob = new Blob([byteArray], { type: 'application/pdf' });
+    const blobUrl = URL.createObjectURL(blob);
+
+    const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Print PDF</title>
+            <style                html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+                embed { width: 100%; height: 100%; }
+            </style>
+        </head>
+        <body>
+            <embed src="${blobUrl}" type="application/pdf" />
+            <script>
+                window.onload = function () {
+                    setTimeout(() => {
+                        window.print();
+                    }, 1000);
+                               };
+            </script>
+        </body>
+        </html>
+    `;
+
+    if (isMobile) {
+        document.open();
+        document.write(htmlContent);
+        document.close();
+    } else {
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+            printWindow.document.open();
+            printWindow.document.write(htmlContent);
+            printWindow.document.close();
+        } else {
+            alert("Please allow pop-ups for this site.");
+        }
+    }
+
+    setTimeout(() => {
+        URL.revokeObjectURL(blobUrl);
+    }, 60000);
+};
