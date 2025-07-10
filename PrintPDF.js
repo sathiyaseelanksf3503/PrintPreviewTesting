@@ -29,68 +29,6 @@ function splitByteArray(byteArray) {
     }   
 }
 
-function isMobileDevice() {
-    return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-}
-
-function printPDFOnMobile(byteArray) {
-    const blob = new Blob([new Uint8Array(byteArray)], { type: 'application/pdf' });
-
-    const reader = new FileReader();
-    reader.onloadend = function () {
-        const dataUrl = reader.result;
-
-        const htmlContent = `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Print PDF</title>
-                <style>
-                    html, body {
-                        margin: 0;
-                        padding: 0;
-                        height: 100%;
-                        overflow: hidden;
-                    }
-                    embed {
-                        width: 100%;
-                        height: 100%;
-                    }
-                </style>
-            </head>
-            <body>
-                <embed src="${dataUrl}" type="application/pdf" />
-                <script>
-                    window.onload = function () {
-                        setTimeout(() => {
-                            window.print();
-                        }, 1000);
-                    };
-                    window.onafterprint = function () {
-                        window.close();
-                    };
-                </script>
-            </body>
-            </html>
-        `;
-
-        const printWindow = window.open('', '_blank');
-        if (!printWindow) {
-            alert("Please allow pop-ups for this site.");
-            return;
-        }
-
-        printWindow.document.open();
-        printWindow.document.write(htmlContent);
-        printWindow.document.close();
-    };
-
-    reader.readAsDataURL(blob);
-}
-
-
-
-
 function printSameWindow(byteArray, issplit = false) {
     var blobUrl;
     if (issplit) {
@@ -105,10 +43,15 @@ function printSameWindow(byteArray, issplit = false) {
         const BlobFile = new Blob([new Uint8Array(byteArray)], { type: 'application/pdf' });
         blobUrl = URL.createObjectURL(BlobFile);
     }
-
-    if (isMobileDevice()) {
-        printPDFOnMobile(byteArray, true); // open in new window on mobile
-        return;
+    const info = getBrowserAndDeviceInfo();
+    if (isSafariOniPad()) {
+        OpenPrintForIpad(blobUrl);
+    }
+    else if (info.browser === "Chrome" && info.isMobile) {
+        console.log("Opened in Chrome browser");
+    }
+    else if (info.browser === "Edge" && info.isMobile) {
+        console.log("Opened in Edge browser");
     }
     else {
         const iframe = document.createElement('iframe');
@@ -154,86 +97,120 @@ function printSameWindow(byteArray, issplit = false) {
     }
 }
 
-// function printNewWindow(byteArray, fileName = 'document.pdf', issplit = false) {
-
-//     const blob = new Blob([byteArray], { type: 'application/pdf' });
-//     // Create object URL
-//     const blobUrl = URL.createObjectURL(blob);
-//     if (isMobileDevice()) {
-//         printPDFOnMobile(byteArray, true); // open in new window on mobile
-//         return;
-//     }
-//     else {
-//         // Open new window with the blob URL
-//         const printWindow = window.open(blobUrl, '_blank');
-
-//         if (!printWindow) {
-//             alert("Failed to open the PDF. Please allow pop-ups for this site.");
-//             return;
-//         }
-
-//         const tryPrint = () => {
-//             printWindow.focus();
-//             printWindow.print();
-//         };
-
-//         // Try printing on load event (works in Chrome and Edge)
-//         printWindow.addEventListener('load', tryPrint);
-
-//         // Fallback for Firefox: try printing after a delay
-//         setTimeout(tryPrint, 3000);
-
-//         // Clean up the object URL after a delay
-//         setTimeout(() => {
-//             URL.revokeObjectURL(blobUrl);
-//         }, 60000); // Clean up after 1 minute
-//     }
-// }
-
-function printNewWindow(byteArray, openInNewWindow) {
-    const blob = new Blob([byteArray], { type: 'application/pdf' });
-    const blobUrl = URL.createObjectURL(blob);
-
-    const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-    const htmlContent = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Print PDF</title>
-            <style                html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
-                embed { width: 100%; height: 100%; }
-            </style>
-        </head>
-        <body>
-            <embed src="${blobUrl}" type="application/pdf" />
-            <script>
-                window.onload = function () {
-                    setTimeout(() => {
-                        window.print();
-                    }, 1000);
-                               };
-            </script>
-        </body>
-        </html>
-    `;
-
-    if (isMobile) {
-        document.open();
-        document.write(htmlContent);
-        document.close();
-    } else {
-        const printWindow = window.open('', '_blank');
-        if (printWindow) {
-            printWindow.document.open();
-            printWindow.document.write(htmlContent);
-            printWindow.document.close();
-        } else {
-            alert("Please allow pop-ups for this site.");
-        }
+function printNewWindow(byteArray, fileName = 'document.pdf', issplit = false) {
+    var blobUrl;
+    if (issplit) {
+        let newByteArray = new Uint8Array(this.fileByteArray.length + byteArray.length);
+        newByteArray.set(this.fileByteArray, 0);
+        newByteArray.set(new Uint8Array(byteArray), this.fileByteArray.length);
+        this.fileByteArray = newByteArray;
+        const BlobFile = new Blob([new Uint8Array(this.fileByteArray)], { type: 'application/pdf' });
+        blobUrl = URL.createObjectURL(BlobFile);
     }
+    else {
+        const BlobFile = new Blob([new Uint8Array(byteArray)], { type: 'application/pdf' });
+        blobUrl = URL.createObjectURL(BlobFile);
+    }
+    const info = getBrowserAndDeviceInfo();
+    if (isSafariOniPad()) {
+        OpenPrintForIpad(blobUrl);
+    }
+    else if (info.browser === "Chrome" && info.isMobile) {
+        console.log("Opened in Chrome browser");
+    }
+    else if (info.browser === "Edge" && info.isMobile) {
+        console.log("Opened in Edge browser");
+    } else {
+        const screenWidth = window.screen.availWidth;
+        const screenHeight = window.screen.availHeight;
+        const printWindow = window.open('', fileName, `width=${screenWidth},height=${screenHeight},top=0,left=0,toolbar=no,menubar=no,scrollbars=no,resizable=no`);
+        if (!printWindow) {
+            alert("Please allow pop-ups for this site.");
+            return;
+        }
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>${fileName}</title>
+                <style>
+                    html, body {
+                        margin: 0;
+                        padding: 0;
+                        height: 100%;
+                        overflow: hidden;
+                    }
+                    iframe {
+                        width: 100%;
+                        height: 100%;
+                        border: none;
+                    }
+                </style>
+            </head>
+            <body>
+                <iframe id="pdfFrame" src="${blobUrl}#view=FitH&toolbar=0&navpanes=0&scrollbar=0"></iframe>
+                <script>
+                    const iframe = document.getElementById('pdfFrame');
+                    iframe.onload = function () {
+                        setTimeout(() => {
+                            iframe.contentWindow.focus();
+                            iframe.contentWindow.print();
+                        }, 500);
+                    };
 
+                    // Notify parent when printing is done
+                    window.onafterprint = function () {
+                        window.close();
+                    };
+                </script>
+            </body>
+            </html>
+        `;
+
+        printWindow.document.open();
+        printWindow.document.write(htmlContent);
+        printWindow.document.close();
+
+        setTimeout(() => {
+            URL.revokeObjectURL(blobUrl);
+        }, 60000);
+    }
+}
+
+function isSafariOniPad() {
+  const ua = navigator.userAgent || navigator.vendor || window.opera;
+  const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+  const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+  const isIPadOS = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+  return (isIOS && isSafari) || (isIPadOS && isSafari);
+}
+
+function getBrowserAndDeviceInfo() {
+  const ua = navigator.userAgent;
+
+  const isEdge = ua.includes("Edg/");
+  const isChrome = ua.includes("Chrome") && !ua.includes("Edg/") && !ua.includes("OPR/");
+  const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(ua);
+
+  return {
+    browser: isEdge ? "Edge" : isChrome ? "Chrome" : "Other",
+    isMobile: isMobile
+  };
+}
+
+function OpenPrintForIpad(blobUrl) {
+    const printWindow = window.open(blobUrl, '_blank');
+    if (!printWindow) {
+        alert("Failed to open the PDF. Please allow pop-ups for this site.");
+        return;
+    }
+    const tryPrint = () => {
+        printWindow.focus();
+        printWindow.print();
+    };
+    printWindow.addEventListener('load', tryPrint);
+    setTimeout(tryPrint, 3000);
     setTimeout(() => {
         URL.revokeObjectURL(blobUrl);
-    }, 60000);
-};
+    }, 60000); // Clean up after 1 minute
+}
