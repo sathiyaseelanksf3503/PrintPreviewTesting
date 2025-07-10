@@ -116,7 +116,19 @@ function printNewWindow(byteArray, fileName = 'document.pdf', issplit = false) {
         OpenPrintForIpad(blobUrl);
     }
     else if (info.browser === "Chrome" && info.isMobile) {
-        console.log("Opened in Chrome browser");
+        // Assume `pdfByteArray` is your Uint8Array or ArrayBuffer
+        const blob = new Blob([pdfByteArray], { type: 'application/pdf' });
+        const blobUrl = URL.createObjectURL(blob);
+
+        // Open in a new tab (user can print from there)
+        const newTab = window.open(blobUrl, '_blank');
+
+        // Optional: Try to trigger print (may not work on mobile)
+        if (newTab) {
+            newTab.onload = () => {
+                newTab.print(); // Often blocked or ignored on mobile
+            };
+        }
     }
     else if (info.browser === "Edge" && info.isMobile) {
         console.log("Opened in Edge browser");
