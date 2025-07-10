@@ -35,57 +35,59 @@ function isMobileDevice() {
 
 function printPDFOnMobile(byteArray) {
     const blob = new Blob([new Uint8Array(byteArray)], { type: 'application/pdf' });
-    const blobUrl = URL.createObjectURL(blob);
 
-    const printWindow = window.open('', '_blank', 'width=1000,height=800');
+    const reader = new FileReader();
+    reader.onloadend = function () {
+        const dataUrl = reader.result;
 
-    if (!printWindow) {
-        alert("Please allow pop-ups for this site.");
-        return;
-    }
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Print PDF</title>
+                <style>
+                    html, body {
+                        margin: 0;
+                        padding: 0;
+                        height: 100%;
+                        overflow: hidden;
+                    }
+                    embed {
+                        width: 100%;
+                        height: 100%;
+                    }
+                </style>
+            </head>
+            <body>
+                <embed src="${dataUrl}" type="application/pdf" />
+                <script>
+                    window.onload = function () {
+                        setTimeout(() => {
+                            window.print();
+                        }, 1000);
+                    };
+                    window.onafterprint = function () {
+                        window.close();
+                    };
+                </script>
+            </body>
+            </html>
+        `;
 
-    const htmlContent = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Print PDF</title>
-            <style>
-                html, body {
-                    margin: 0;
-                    padding: 0;
-                    height: 100%;
-                    overflow: hidden;
-                }
-                embed {
-                    width: 100%;
-                    height: 100%;
-                }
-            </style>
-        </head>
-        <body>
-            <embed src="${blobUrl}" type="application/pdf" />
-            <script>
-                window.onload = function () {
-                    setTimeout(() => {
-                        window.print();
-                    }, 1000);
-                };
-                window.onafterprint = function () {
-                    window.close();
-                };
-            </script>
-        </body>
-        </html>
-    `;
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+            alert("Please allow pop-ups for this site.");
+            return;
+        }
 
-    printWindow.document.open();
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
+        printWindow.document.open();
+        printWindow.document.write(htmlContent);
+        printWindow.document.close();
+    };
 
-    setTimeout(() => {
-        URL.revokeObjectURL(blobUrl);
-    }, 60000);
+    reader.readAsDataURL(blob);
 }
+
 
 
 
