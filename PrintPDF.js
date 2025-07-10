@@ -117,7 +117,7 @@ function printNewWindow(byteArray, fileName = 'document.pdf', issplit = false) {
     }
     else if (info.browser === "Chrome" && info.isMobile) {
         // Assume `pdfByteArray` is your Uint8Array or ArrayBuffer
-        const blob = new Blob([pdfByteArray], { type: 'application/pdf' });
+        const blob = new Blob([byteArray], { type: 'application/pdf' });
         const blobUrl = URL.createObjectURL(blob);
 
         // Open in a new tab (user can print from there)
