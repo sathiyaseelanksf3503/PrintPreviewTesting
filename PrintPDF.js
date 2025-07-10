@@ -33,9 +33,16 @@ function isMobileDevice() {
     return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 }
 
-function printPDFOnMobile(byteArray, openInNewWindow = false) {
+function printPDFOnMobile(byteArray) {
     const blob = new Blob([new Uint8Array(byteArray)], { type: 'application/pdf' });
     const blobUrl = URL.createObjectURL(blob);
+
+    const printWindow = window.open('', '_blank', 'width=1000,height=800');
+
+    if (!printWindow) {
+        alert("Please allow pop-ups for this site.");
+        return;
+    }
 
     const htmlContent = `
         <!DOCTYPE html>
@@ -63,30 +70,23 @@ function printPDFOnMobile(byteArray, openInNewWindow = false) {
                         window.print();
                     }, 1000);
                 };
+                window.onafterprint = function () {
+                    window.close();
+                };
             </script>
         </body>
         </html>
     `;
 
-    if (openInNewWindow) {
-        const printWindow = window.open('', '_blank');
-        if (!printWindow) {
-            alert("Please allow pop-ups for this site.");
-            return;
-        }
-        printWindow.document.open();
-        printWindow.document.write(htmlContent);
-        printWindow.document.close();
-    } else {
-        document.open();
-        document.write(htmlContent);
-        document.close();
-    }
+    printWindow.document.open();
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
 
     setTimeout(() => {
         URL.revokeObjectURL(blobUrl);
     }, 60000);
 }
+
 
 
 function printSameWindow(byteArray, issplit = false) {
