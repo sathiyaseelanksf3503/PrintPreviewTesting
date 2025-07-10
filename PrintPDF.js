@@ -33,49 +33,61 @@ function isMobileDevice() {
     return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 }
 
-function printPDFInSameWindowMobile(byteArray) {
+function printPDFOnMobile(byteArray) {
     const blob = new Blob([new Uint8Array(byteArray)], { type: 'application/pdf' });
-    const blobUrl = URL.createObjectURL(blob);
 
-    const htmlContent = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Print PDF</title>
-            <style>
-                html, body {
-                    margin: 0;
-                    padding: 0;
-                    height: 100%;
-                    overflow: hidden;
-                }
-                embed {
-                    width: 100%;
-                    height: 100%;
-                }
-            </style>
-        </head>
-        <body>
-            <embed src="${blobUrl}" type="application/pdf" />
-            <script>
-                window.onload = function () {
-                    setTimeout(() => {
-                        window.print();
-                    }, 1000);
-                };
-            </script>
-        </body>
-        </html>
-    `;
+    const reader = new FileReader();
+    reader.onloadend = function () {
+        const dataUrl = reader.result;
 
-    document.open();
-    document.write(htmlContent);
-    document.close();
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Print PDF</title>
+                <style>
+                    html, body {
+                        margin: 0;
+                        padding: 0;
+                        height: 100%;
+                        overflow: hidden;
+                    }
+                    embed {
+                        width: 100%;
+                        height: 100%;
+                    }
+                </style>
+            </head>
+            <body>
+                <embed src="${dataUrl}" type="application/pdf" />
+                <script>
+                    window.onload = function () {
+                        setTimeout(() => {
+                            window.print();
+                        }, 1000);
+                    };
+                    window.onafterprint = function () {
+                        window.close();
+                    };
+                </script>
+            </body>
+            </html>
+        `;
 
-    setTimeout(() => {
-        URL.revokeObjectURL(blobUrl);
-    }, 60000);
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+            alert("Please allow pop-ups for this site.");
+            return;
+        }
+
+        printWindow.document.open();
+        printWindow.document.write(htmlContent);
+        printWindow.document.close();
+    };
+
+    reader.readAsDataURL(blob);
 }
+
 
 
 
