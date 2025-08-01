@@ -1,10 +1,10 @@
 {
   "mainAssemblyName": "BlazorDevelopmentWasm",
   "resources": {
-    "hash": "sha256-SiWVZoZxRJLp947QAAw94nsrpzNsHvjh7Rk3zb34QS0=",
+    "hash": "sha256-DJdz1AO440dQS2fERrCrhcAayfOlqxgPdWM40u3qK6Q=",
     "fingerprinting": {
       "BitMiracle.LibTiff.NET.k3fftbjbr6.wasm": "BitMiracle.LibTiff.NET.wasm",
-      "BlazorDevelopmentWasm.cu38k5rj8z.wasm": "BlazorDevelopmentWasm.wasm",
+      "BlazorDevelopmentWasm.i3ljro1fv4.wasm": "BlazorDevelopmentWasm.wasm",
       "HarfBuzzSharp.a6hw5yelbl.wasm": "HarfBuzzSharp.wasm",
       "Microsoft.AspNetCore.Components.Forms.ia7urx55rm.wasm": "Microsoft.AspNetCore.Components.Forms.wasm",
       "Microsoft.AspNetCore.Components.ur5mytmim8.wasm": "Microsoft.AspNetCore.Components.wasm",
@@ -137,7 +137,7 @@
     },
     "assembly": {
       "BitMiracle.LibTiff.NET.k3fftbjbr6.wasm": "sha256-0Mz6vO0bEw6drXy1hdVeBaYQDToCT8sVTkaHJgg6xj0=",
-      "BlazorDevelopmentWasm.cu38k5rj8z.wasm": "sha256-dP1kr6EmlHQ8mbLsn3ZcZJwyPciD+LjcYg3SmX604jY=",
+      "BlazorDevelopmentWasm.i3ljro1fv4.wasm": "sha256-cuOaDXHrZNOgQgs9gktFDdRU70neKv2Z8BEIUn7zDtM=",
       "HarfBuzzSharp.a6hw5yelbl.wasm": "sha256-DtQxPL9jygz0yY23vRHXfaWOgbPhGeT/E7rPZoSBy4Q=",
       "Microsoft.AspNetCore.Components.Forms.ia7urx55rm.wasm": "sha256-ai8ulfdLtsog9Z4wFtKTrAPwmM4a0Sz+Vanna4lABGs=",
       "Microsoft.AspNetCore.Components.ur5mytmim8.wasm": "sha256-RmPSFlYCdYepXiaHqJjz0jFNDhZoDk4E4XP2huDrEjg=",
